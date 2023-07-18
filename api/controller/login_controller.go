@@ -5,9 +5,9 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/bootstrap"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
 	"github.com/gin-gonic/gin"
+	"github.com/jordanlanch/bia-test/bootstrap"
+	"github.com/jordanlanch/bia-test/domain"
 )
 
 type LoginController struct {
@@ -35,13 +35,13 @@ func (lc *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := lc.LoginUsecase.CreateAccessToken(&user, lc.Env.AccessTokenSecret, lc.Env.AccessTokenExpiryHour)
+	accessToken, err := lc.LoginUsecase.CreateAccessToken(user, lc.Env.AccessTokenSecret, lc.Env.AccessTokenExpiryHour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	refreshToken, err := lc.LoginUsecase.CreateRefreshToken(&user, lc.Env.RefreshTokenSecret, lc.Env.RefreshTokenExpiryHour)
+	refreshToken, err := lc.LoginUsecase.CreateRefreshToken(user, lc.Env.RefreshTokenSecret, lc.Env.RefreshTokenExpiryHour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return

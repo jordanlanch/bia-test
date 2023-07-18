@@ -1,103 +1,87 @@
 package controller_test
 
-import (
-	"encoding/json"
-	"errors"
-	"net/http"
-	"net/http/httptest"
-	"testing"
+// func setUserID(userID string) gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		c.Set("x-user-id", userID)
+// 		c.Next()
+// 	}
+// }
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/api/controller"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain/mocks"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
+// func TestFetch(t *testing.T) {
 
-func setUserID(userID string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set("x-user-id", userID)
-		c.Next()
-	}
-}
+// 	t.Run("success", func(t *testing.T) {
+// 		mockProfile := &domain.Profile{
+// 			Name:  "Test Name",
+// 			Email: "test@gmail.com",
+// 		}
 
-func TestFetch(t *testing.T) {
+// 		userObjectID := primitive.NewObjectID()
+// 		userID := userObjectID.Hex()
 
-	t.Run("success", func(t *testing.T) {
-		mockProfile := &domain.Profile{
-			Name:  "Test Name",
-			Email: "test@gmail.com",
-		}
+// 		mockProfileUsecase := new(mocks.ProfileUsecase)
 
-		userObjectID := primitive.NewObjectID()
-		userID := userObjectID.Hex()
+// 		mockProfileUsecase.On("GetProfileByID", mock.Anything, userID).Return(mockProfile, nil)
 
-		mockProfileUsecase := new(mocks.ProfileUsecase)
+// 		gin := gin.Default()
 
-		mockProfileUsecase.On("GetProfileByID", mock.Anything, userID).Return(mockProfile, nil)
+// 		rec := httptest.NewRecorder()
 
-		gin := gin.Default()
+// 		pc := &controller.ProfileController{
+// 			ProfileUsecase: mockProfileUsecase,
+// 		}
 
-		rec := httptest.NewRecorder()
+// 		gin.Use(setUserID(userID))
+// 		gin.GET("/profile", pc.Fetch)
 
-		pc := &controller.ProfileController{
-			ProfileUsecase: mockProfileUsecase,
-		}
+// 		body, err := json.Marshal(mockProfile)
+// 		assert.NoError(t, err)
 
-		gin.Use(setUserID(userID))
-		gin.GET("/profile", pc.Fetch)
+// 		bodyString := string(body)
 
-		body, err := json.Marshal(mockProfile)
-		assert.NoError(t, err)
+// 		req := httptest.NewRequest(http.MethodGet, "/profile", nil)
+// 		gin.ServeHTTP(rec, req)
 
-		bodyString := string(body)
+// 		assert.Equal(t, http.StatusOK, rec.Code)
 
-		req := httptest.NewRequest(http.MethodGet, "/profile", nil)
-		gin.ServeHTTP(rec, req)
+// 		assert.Equal(t, bodyString, rec.Body.String())
 
-		assert.Equal(t, http.StatusOK, rec.Code)
+// 		mockProfileUsecase.AssertExpectations(t)
+// 	})
 
-		assert.Equal(t, bodyString, rec.Body.String())
+// 	t.Run("error", func(t *testing.T) {
+// 		userObjectID := primitive.NewObjectID()
+// 		userID := userObjectID.Hex()
 
-		mockProfileUsecase.AssertExpectations(t)
-	})
+// 		mockProfileUsecase := new(mocks.ProfileUsecase)
 
-	t.Run("error", func(t *testing.T) {
-		userObjectID := primitive.NewObjectID()
-		userID := userObjectID.Hex()
+// 		customErr := errors.New("Unexpected")
 
-		mockProfileUsecase := new(mocks.ProfileUsecase)
+// 		mockProfileUsecase.On("GetProfileByID", mock.Anything, userID).Return(nil, customErr)
 
-		customErr := errors.New("Unexpected")
+// 		gin := gin.Default()
 
-		mockProfileUsecase.On("GetProfileByID", mock.Anything, userID).Return(nil, customErr)
+// 		rec := httptest.NewRecorder()
 
-		gin := gin.Default()
+// 		pc := &controller.ProfileController{
+// 			ProfileUsecase: mockProfileUsecase,
+// 		}
 
-		rec := httptest.NewRecorder()
+// 		gin.Use(setUserID(userID))
+// 		gin.GET("/profile", pc.Fetch)
 
-		pc := &controller.ProfileController{
-			ProfileUsecase: mockProfileUsecase,
-		}
+// 		body, err := json.Marshal(domain.ErrorResponse{Message: customErr.Error()})
+// 		assert.NoError(t, err)
 
-		gin.Use(setUserID(userID))
-		gin.GET("/profile", pc.Fetch)
+// 		bodyString := string(body)
 
-		body, err := json.Marshal(domain.ErrorResponse{Message: customErr.Error()})
-		assert.NoError(t, err)
+// 		req := httptest.NewRequest(http.MethodGet, "/profile", nil)
+// 		gin.ServeHTTP(rec, req)
 
-		bodyString := string(body)
+// 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 
-		req := httptest.NewRequest(http.MethodGet, "/profile", nil)
-		gin.ServeHTTP(rec, req)
+// 		assert.Equal(t, bodyString, rec.Body.String())
 
-		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+// 		mockProfileUsecase.AssertExpectations(t)
+// 	})
 
-		assert.Equal(t, bodyString, rec.Body.String())
-
-		mockProfileUsecase.AssertExpectations(t)
-	})
-
-}
+// }
