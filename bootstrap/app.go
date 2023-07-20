@@ -1,19 +1,23 @@
 package bootstrap
 
-import "github.com/amitshekhariitbhu/go-backend-clean-architecture/mongo"
+import "gorm.io/gorm"
 
 type Application struct {
-	Env   *Env
-	Mongo mongo.Client
+	Env        *Env
+	Postgresql *gorm.DB
 }
 
 func App() Application {
 	app := &Application{}
 	app.Env = NewEnv()
-	app.Mongo = NewMongoDatabase(app.Env)
+	postgresqlDB, err := NewPostgresDatabase(app.Env)
+	if err != nil {
+		panic(err)
+	}
+	app.Postgresql = postgresqlDB
 	return *app
 }
 
 func (app *Application) CloseDBConnection() {
-	CloseMongoDBConnection(app.Mongo)
+	ClosePostgresDBConnection(app.Postgresql)
 }

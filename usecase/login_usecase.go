@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/internal/tokenutil"
+	"github.com/jordanlanch/bia-test/domain"
+	"github.com/jordanlanch/bia-test/internal/tokenutil"
 )
 
 type loginUsecase struct {
@@ -20,10 +20,10 @@ func NewLoginUsecase(userRepository domain.UserRepository, timeout time.Duration
 	}
 }
 
-func (lu *loginUsecase) GetUserByEmail(c context.Context, email string) (domain.User, error) {
-	ctx, cancel := context.WithTimeout(c, lu.contextTimeout)
+func (lu *loginUsecase) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	_, cancel := context.WithTimeout(ctx, lu.contextTimeout)
 	defer cancel()
-	return lu.userRepository.GetByEmail(ctx, email)
+	return lu.userRepository.FindByEmail(ctx, email)
 }
 
 func (lu *loginUsecase) CreateAccessToken(user *domain.User, secret string, expiry int) (accessToken string, err error) {

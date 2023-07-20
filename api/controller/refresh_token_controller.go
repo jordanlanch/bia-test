@@ -3,9 +3,9 @@ package controller
 import (
 	"net/http"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/bootstrap"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
 	"github.com/gin-gonic/gin"
+	"github.com/jordanlanch/bia-test/bootstrap"
+	"github.com/jordanlanch/bia-test/domain"
 )
 
 type RefreshTokenController struct {
@@ -28,19 +28,19 @@ func (rtc *RefreshTokenController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	user, err := rtc.RefreshTokenUsecase.GetUserByID(c, id)
+	user, err := rtc.RefreshTokenUsecase.GetUserByEmail(c, id)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "User not found"})
 		return
 	}
 
-	accessToken, err := rtc.RefreshTokenUsecase.CreateAccessToken(&user, rtc.Env.AccessTokenSecret, rtc.Env.AccessTokenExpiryHour)
+	accessToken, err := rtc.RefreshTokenUsecase.CreateAccessToken(user, rtc.Env.AccessTokenSecret, rtc.Env.AccessTokenExpiryHour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	refreshToken, err := rtc.RefreshTokenUsecase.CreateRefreshToken(&user, rtc.Env.RefreshTokenSecret, rtc.Env.RefreshTokenExpiryHour)
+	refreshToken, err := rtc.RefreshTokenUsecase.CreateRefreshToken(user, rtc.Env.RefreshTokenSecret, rtc.Env.RefreshTokenExpiryHour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return

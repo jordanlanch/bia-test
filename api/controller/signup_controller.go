@@ -3,10 +3,10 @@ package controller
 import (
 	"net/http"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/bootstrap"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
+	"github.com/jordanlanch/bia-test/bootstrap"
+	"github.com/jordanlanch/bia-test/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -41,26 +41,25 @@ func (sc *SignupController) Signup(c *gin.Context) {
 
 	request.Password = string(encryptedPassword)
 
-	user := domain.User{
-		ID:       primitive.NewObjectID(),
-		Name:     request.Name,
+	user := &domain.User{
+		ID:       uuid.New(),
 		Email:    request.Email,
 		Password: request.Password,
 	}
 
-	err = sc.SignupUsecase.Create(c, &user)
+	user, err = sc.SignupUsecase.Create(c, user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	accessToken, err := sc.SignupUsecase.CreateAccessToken(&user, sc.Env.AccessTokenSecret, sc.Env.AccessTokenExpiryHour)
+	accessToken, err := sc.SignupUsecase.CreateAccessToken(user, sc.Env.AccessTokenSecret, sc.Env.AccessTokenExpiryHour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	refreshToken, err := sc.SignupUsecase.CreateRefreshToken(&user, sc.Env.RefreshTokenSecret, sc.Env.RefreshTokenExpiryHour)
+	refreshToken, err := sc.SignupUsecase.CreateRefreshToken(user, sc.Env.RefreshTokenSecret, sc.Env.RefreshTokenExpiryHour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return

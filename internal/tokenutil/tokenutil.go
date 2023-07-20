@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
 	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/jordanlanch/bia-test/domain"
 )
 
 func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToken string, err error) {
 	exp := time.Now().Add(time.Hour * time.Duration(expiry)).Unix()
 	claims := &domain.JwtCustomClaims{
-		Name: user.Name,
-		ID:   user.ID.Hex(),
+		Email: user.Email,
+		ID:    user.ID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: exp,
 		},
@@ -27,7 +27,7 @@ func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToke
 
 func CreateRefreshToken(user *domain.User, secret string, expiry int) (refreshToken string, err error) {
 	claimsRefresh := &domain.JwtCustomRefreshClaims{
-		ID: user.ID.Hex(),
+		ID: user.ID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * time.Duration(expiry)).Unix(),
 		},
@@ -66,6 +66,7 @@ func ExtractIDFromToken(requestToken string, secret string) (string, error) {
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
+	fmt.Printf("claims=>%v\n", claims)
 
 	if !ok && !token.Valid {
 		return "", fmt.Errorf("Invalid Token")

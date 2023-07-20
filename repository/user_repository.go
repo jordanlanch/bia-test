@@ -3,70 +3,50 @@ package repository
 import (
 	"context"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/mongo"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/google/uuid"
+	"github.com/jordanlanch/bia-test/domain"
+	"gorm.io/gorm"
 )
 
 type userRepository struct {
-	database   mongo.Database
-	collection string
+	db    *gorm.DB
+	table string
 }
 
-func NewUserRepository(db mongo.Database, collection string) domain.UserRepository {
-	return &userRepository{
-		database:   db,
-		collection: collection,
+func NewUserRepository(db *gorm.DB, table string) domain.UserRepository {
+	return &userRepository{db, table}
+}
+
+func (r *userRepository) Create(ctx context.Context, user *domain.User) (*domain.User, error) {
+	result := r.db.WithContext(ctx).Create(user)
+	if result.Error != nil {
+		return nil, result.Error
 	}
+	return user, nil
 }
 
-func (ur *userRepository) Create(c context.Context, user *domain.User) error {
-	collection := ur.database.Collection(ur.collection)
-
-	_, err := collection.InsertOne(c, user)
-
-	return err
-}
-
-func (ur *userRepository) Fetch(c context.Context) ([]domain.User, error) {
-	collection := ur.database.Collection(ur.collection)
-
-	opts := options.Find().SetProjection(bson.D{{Key: "password", Value: 0}})
-	cursor, err := collection.Find(c, bson.D{}, opts)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var users []domain.User
-
-	err = cursor.All(c, &users)
-	if users == nil {
-		return []domain.User{}, err
-	}
-
-	return users, err
-}
-
-func (ur *userRepository) GetByEmail(c context.Context, email string) (domain.User, error) {
-	collection := ur.database.Collection(ur.collection)
+func (r *userRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	var user domain.User
-	err := collection.FindOne(c, bson.M{"email": email}).Decode(&user)
-	return user, err
+	result := r.db.WithContext(ctx).First(&user, "id = ?", id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
 }
 
-func (ur *userRepository) GetByID(c context.Context, id string) (domain.User, error) {
-	collection := ur.database.Collection(ur.collection)
-
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
 	var user domain.User
-
-	idHex, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return user, err
+	result := r.db.WithContext(ctx).First(&user, "email = ?", email)
+	if result.Error != nil {
+		return nil, result.Error
 	}
+	return &user, nil
+}
 
-	err = collection.FindOne(c, bson.M{"_id": idHex}).Decode(&user)
-	return user, err
+func (r *userRepository) Update(ctx context.Context, user *domain.User) (*domain.User, error) {
+	result := r.db.WithContext(ctx).Save(user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return user, nil
 }
