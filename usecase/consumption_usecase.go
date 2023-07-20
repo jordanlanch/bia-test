@@ -27,30 +27,9 @@ func (cu *consumptionUsecase) GetConsumptionById(id uuid.UUID) (*domain.Consumpt
 	return cu.consumptionRepository.FindById(ctx, id)
 }
 
-func (cu *consumptionUsecase) GetAllConsumptions(pagination *domain.Pagination) ([]*domain.Consumption, error) {
+func (cu *consumptionUsecase) GetConsumptionsByPeriod(period_type, start, end string, meterID []int, pagination *domain.Pagination) (*domain.Response, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), cu.contextTimeout)
 	defer cancel()
 
-	return cu.consumptionRepository.FindMany(ctx, pagination)
-}
-
-func (cu *consumptionUsecase) GetMonthlyConsumptions(start, end time.Time, meterID []uuid.UUID, pagination *domain.Pagination) ([]*domain.Consumption, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), cu.contextTimeout)
-	defer cancel()
-
-	return cu.consumptionRepository.FindMonthly(ctx, start, end, meterID, pagination)
-}
-
-func (cu *consumptionUsecase) GetWeeklyConsumptions(start, end time.Time, meterID []uuid.UUID, pagination *domain.Pagination) ([]*domain.Consumption, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), cu.contextTimeout)
-	defer cancel()
-
-	return cu.consumptionRepository.FindWeekly(ctx, start, end, meterID, pagination)
-}
-
-func (cu *consumptionUsecase) GetDailyConsumptions(start, end time.Time, meterID []uuid.UUID, pagination *domain.Pagination) ([]*domain.Consumption, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), cu.contextTimeout)
-	defer cancel()
-
-	return cu.consumptionRepository.FindDaily(ctx, start, end, meterID, pagination)
+	return cu.consumptionRepository.FindByPeriod(ctx, period_type, start, end, meterID, pagination)
 }

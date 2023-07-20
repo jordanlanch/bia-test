@@ -1,31 +1,44 @@
-version: "3.8"
+version: '3.5'
 
 services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: app
-    container_name: app
-    restart: unless-stopped
-    env_file: .env
-    ports:
-      - "$PORT:$PORT"
-    depends_on:
-      - mongodb
 
-  mongodb:
-    image: mongo:6.0
-    container_name: mongodb
-    restart: unless-stopped
-    env_file: .env
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=$DB_USER
-      - MONGO_INITDB_ROOT_PASSWORD=$DB_PASS
-    ports:
-      - "$DB_PORT:$DB_PORT"
+  db:
+    image: postgres
     volumes:
-      - dbdata:/data/db
+      - dbstore:/var/lib/postgresql/bia-test-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: bia-test-db
+    networks:
+      - bia-net
+  api:
+    depends_on:
+      - db
+      - aws-cli-guard
+    volumes:
+      - .:/go/src/github.com/jordanlanch/bia-test
+    environment:
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: bia-test-db
+      DATABASE_HOSTNAME: db
+      DATABASE_PORT: 5432
+    env_file:
+      - .env
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    entrypoint: sh -c 'sleep 15 && goose -dir storage/migrations postgres "host=db user=postgres password=password dbname=bia-test-db port=5432 sslmode=disable" up && watcher'
+    networks:
+      - bia-net
 
 volumes:
-  dbdata:
+  dbstore:
+networks:
+  bia-net:
+    external: true
+    name: bia-net

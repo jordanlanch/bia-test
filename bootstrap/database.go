@@ -10,11 +10,11 @@ import (
 )
 
 func NewPostgresDatabase(env *Env) (*gorm.DB, error) {
-	dbHost := env.DBPostgresHost
-	dbPort := env.DBPostgresPort
-	dbUser := env.DBPostgresUser
-	dbPass := env.DBPostgresPass
-	dbName := env.DBPostgresName
+	dbHost := env.DBHost
+	dbPort := env.DBPort
+	dbUser := env.DBUser
+	dbPass := env.DBPass
+	dbName := env.DBName
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC", dbHost, dbUser, dbPass, dbName, dbPort)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})

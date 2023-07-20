@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	MeterTable = "meter"
+	MeterTable = "meters"
 )
 
 type Meter struct {

@@ -4,10 +4,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/jordanlanch/bia-test/domain"
 )
 
@@ -18,13 +16,13 @@ type ConsumptionController struct {
 func (cc *ConsumptionController) GetConsumptionsByPeriod(c *gin.Context) {
 	meterIDsParam := c.Query("meters_ids")
 
-	var meterIDs []uuid.UUID
+	var meterIDs []int
 	if strings.HasPrefix(meterIDsParam, "[") && strings.HasSuffix(meterIDsParam, "]") {
 		// Lista de meter_ids
 		meterIDsStr := strings.TrimPrefix(strings.TrimSuffix(meterIDsParam, "]"), "[")
 		meterIDsArr := strings.Split(meterIDsStr, ",")
 		for _, idStr := range meterIDsArr {
-			id, err := uuid.Parse(idStr)
+			id, err := strconv.Atoi(idStr)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 				return
@@ -33,23 +31,22 @@ func (cc *ConsumptionController) GetConsumptionsByPeriod(c *gin.Context) {
 		}
 	} else {
 		// Solo un meter_id
-		id, err := uuid.Parse(meterIDsParam)
+		id, err := strconv.Atoi(meterIDsParam)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 			return
 		}
 		meterIDs = append(meterIDs, id)
 	}
-	
-	start, err := time.Parse(time.RFC3339, c.Query("start_date"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+
+	startStr := c.Query("start_date")
+	if startStr == "" {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Missing start_date parameter"})
 		return
 	}
-
-	end, err := time.Parse(time.RFC3339, c.Query("end_date"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+	endStr := c.Query("end_date")
+	if startStr == "" {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Missing end_date parameter"})
 		return
 	}
 
@@ -68,18 +65,7 @@ func (cc *ConsumptionController) GetConsumptionsByPeriod(c *gin.Context) {
 	pagination := &domain.Pagination{Limit: &limit, Offset: &offset}
 
 	kind := c.Query("kind_period")
-	var consumptions []*domain.Consumption
-	switch kind {
-	case "monthly":
-		consumptions, err = cc.ConsumptionUsecase.GetMonthlyConsumptions(start, end, meterIDs, pagination,)
-	case "weekly":
-		consumptions, err = cc.ConsumptionUsecase.GetWeeklyConsumptions(start, end, meterIDs, pagination)
-	case "daily":
-		consumptions, err = cc.ConsumptionUsecase.GetDailyConsumptions(start, end, meterIDs, pagination)
-	default:
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid period kind"})
-		return
-	}
+	consumptions, err := cc.ConsumptionUsecase.GetConsumptionsByPeriod(kind, startStr, endStr, meterIDs, pagination)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
