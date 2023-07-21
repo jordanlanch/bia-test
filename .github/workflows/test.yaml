@@ -21,23 +21,6 @@ jobs:
       ACCESS_TOKEN_SECRET: "access_token_secret"
       REFRESH_TOKEN_SECRET: "refresh_token_secret"
       IS_SANDOX: false
-    services:
-      db-test:
-        # Docker Hub image
-        image: postgres:14.0-alpine
-        # Provide the password for postgres
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_DB: bia-test-db-test
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5433 on service container to the host
-          - 5433:5432
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
