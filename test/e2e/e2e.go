@@ -9,7 +9,6 @@ import (
 	"time"
 
 	httpexpect "github.com/gavv/httpexpect/v2"
-	"github.com/gin-gonic/gin"
 	"github.com/jordanlanch/bia-test/api/route"
 	"github.com/jordanlanch/bia-test/bootstrap"
 	"gopkg.in/dnaeon/go-vcr.v3/recorder"
@@ -19,7 +18,7 @@ import (
 func Setup(t *testing.T, cassetteName string) (expect *httpexpect.Expect, teardown func()) {
 	t.Helper()
 
-	app := bootstrap.App(".env_test")
+	app := bootstrap.App("../test/.env")
 
 	env := app.Env
 
@@ -34,8 +33,9 @@ func Setup(t *testing.T, cassetteName string) (expect *httpexpect.Expect, teardo
 	// Use the recorder for all requests
 	httpClient := recorder.GetDefaultClient()
 
-	gin := gin.Default()
-	srv := httptest.NewUnstartedServer(gin)
+	router := route.Setup(env, timeout, app.Postgresql)
+
+	srv := httptest.NewUnstartedServer(router)
 	listener, err := net.Listen("tcp", "127.0.0.1:42783")
 	if err != nil {
 		if listener, err = net.Listen("tcp6", "[::1]:0"); err != nil {
@@ -53,9 +53,8 @@ func Setup(t *testing.T, cassetteName string) (expect *httpexpect.Expect, teardo
 		},
 	})
 
-	route.Setup(env, timeout, app.Postgresql, gin)
-
 	return expect, func() {
 		app.CloseDBConnection()
+		recorder.Stop()
 	}
 }

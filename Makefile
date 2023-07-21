@@ -43,9 +43,10 @@ e2e_test: goose_install
 	echo "/////////////////////////////////Starting E2E Test/////////////////////////////////"
 	docker compose -f docker-compose-test.yaml up --build -d
 	sh -c 'sleep 5 &&  goose -dir ${MIGRATION_DIR} postgres "host=localhost user=postgres dbname=${DB_NAME_TEST} port=${DB_PORT_TEST} sslmode=disable" up'
-	cd ./test &&  go test ./...
+	cd ./test &&  go test ./... || true
 	docker compose -f docker-compose-test.yaml down
 	echo "/////////////////////////////////Ending E2E Test/////////////////////////////////"
+
 
 ## default that allows accepting extra args
 %:

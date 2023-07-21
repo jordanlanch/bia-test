@@ -10,7 +10,7 @@ require (
 	github.com/invopop/jsonschema v0.7.0
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/spf13/viper v1.14.0
-	github.com/stoewer/go-strcase v1.3.0
+	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/testify v1.8.3
 	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/crypto v0.11.0

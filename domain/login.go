@@ -5,8 +5,8 @@ import (
 )
 
 type LoginRequest struct {
-	Email    string `json:"email,omitempty" jsonschema:"required,minLength=1,description=Email of the user,title=Email"`
-	Password string `json:"password,omitempty" jsonschema:"required,minLength=1,description=Password of the user,title=Password"`
+	Email    string `json:"email,omitempty" jsonschema:"required,description=Email of the user,title=Email"`
+	Password string `json:"password,omitempty" jsonschema:"required,description=Password of the user,title=Password"`
 }
 
 type LoginResponse struct {

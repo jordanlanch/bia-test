@@ -57,7 +57,7 @@ func (r *consumptionRepository) findWithCondition(ctx context.Context, condition
 		Select(fmt.Sprintf("%s, meter_id, SUM(active) as active, SUM(reactive_inductive) as reactive_inductive, SUM(reactive_capacitive) as reactive_capacitive, SUM(exported) as exported", datePeriodFormat)).
 		Where(condition, args...).
 		Group(datePeriodSQL + ", meter_id").
-		Order(datePeriodSQL).
+		Order("MIN(timestamp)").
 		Find(&consumptions).
 		Error
 

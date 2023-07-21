@@ -26,7 +26,7 @@ func (sc *SignupController) Signup(c *gin.Context) {
 
 	r := new(jsonschema.Reflector)
 	r.KeyNamer = strcase.SnakeCase // from package github.com/stoewer/go-strcase
-	// r.RequiredFromJSONSchemaTags = true
+	r.RequiredFromJSONSchemaTags = true
 	payloadSchemaReflect := r.Reflect(domain.SignupRequest{})
 	schemaLoader := gojsonschema.NewGoLoader(&payloadSchemaReflect)
 

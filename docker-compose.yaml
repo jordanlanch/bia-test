@@ -3,7 +3,7 @@ version: '3.5'
 services:
 
   db:
-    image: postgres
+    image: postgres:14.0-alpine
     volumes:
       - dbstore:/var/lib/postgresql/bia-test-db
     ports:
