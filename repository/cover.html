@@ -103,7 +103,7 @@ type consumptionRepository struct {
 }
 
 // NewConsumptionRepository crea una nueva instancia de ConsumptionRepository.
-func NewConsumptionRepository(db *gorm.DB, table string) domain.ConsumptionRepository <span class="cov8" title="7">{
+func NewConsumptionRepository(db *gorm.DB, table string) domain.ConsumptionRepository <span class="cov9" title="7">{
         return &amp;consumptionRepository{db, table}
 }</span>
 
@@ -113,7 +113,7 @@ func (r *consumptionRepository) Save(ctx context.Context, consumption *domain.Co
 }</span>
 
 // FindByID busca un consumo por su ID.
-func (r *consumptionRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Consumption, error) <span class="cov3" title="2">{
+func (r *consumptionRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Consumption, error) <span class="cov4" title="2">{
         var consumption domain.Consumption
         err := r.db.WithContext(ctx).First(&amp;consumption, "id = ?", id).Error
         if err != nil </span><span class="cov1" title="1">{
@@ -123,7 +123,7 @@ func (r *consumptionRepository) FindByID(ctx context.Context, id uuid.UUID) (*do
 }
 
 // FindByPeriod busca consumos por tipo de período, fechas, IDs de medidores y paginación.
-func (r *consumptionRepository) FindByPeriod(ctx context.Context, periodType, start, end string, meterIDs []int, pagination *domain.Pagination) (*domain.Response, error) <span class="cov6" title="4">{
+func (r *consumptionRepository) FindByPeriod(ctx context.Context, periodType, start, end string, meterIDs []int, pagination *domain.Pagination) (*domain.Response, error) <span class="cov7" title="4">{
         if !isValidPeriodType(periodType) </span><span class="cov1" title="1">{
                 return nil, fmt.Errorf("Invalid period type: %s", periodType)
         }</span>
@@ -153,16 +153,16 @@ func (r *consumptionRepository) findWithCondition(ctx context.Context, condition
 }
 
 // applyPagination aplica la paginación a la consulta de base de datos.
-func applyPagination(db *gorm.DB, pagination *domain.Pagination) *gorm.DB <span class="cov6" title="4">{
-        if pagination != nil </span><span class="cov6" title="4">{
-                if pagination.Limit != nil </span><span class="cov6" title="4">{
+func applyPagination(db *gorm.DB, pagination *domain.Pagination) *gorm.DB <span class="cov7" title="4">{
+        if pagination != nil </span><span class="cov7" title="4">{
+                if pagination.Limit != nil </span><span class="cov7" title="4">{
                         db = db.Limit(*pagination.Limit)
                 }</span>
-                <span class="cov6" title="4">if pagination.Offset != nil </span><span class="cov6" title="4">{
+                <span class="cov7" title="4">if pagination.Offset != nil </span><span class="cov7" title="4">{
                         db = db.Offset(*pagination.Offset)
                 }</span>
         }
-        <span class="cov6" title="4">return db</span>
+        <span class="cov7" title="4">return db</span>
 }
 
 // MeterData es una estructura personalizada para almacenar datos del medidor.
@@ -172,7 +172,7 @@ type MeterData struct {
 }
 
 // formatConsumptionData formats the consumption data into the response structure.
-func formatConsumptionData(consumptions []*domain.Consumption) *domain.Response <span class="cov6" title="4">{
+func formatConsumptionData(consumptions []*domain.Consumption) *domain.Response <span class="cov7" title="4">{
         response := &amp;domain.Response{
                 Period:    make([]string, 0),
                 DataGraph: make([]map[string]interface{}, 0),
@@ -189,7 +189,7 @@ func formatConsumptionData(consumptions []*domain.Consumption) *domain.Response 
         }</span>
 
         // Process meter data for each meter ID and create data graph items
-        <span class="cov6" title="4">for meterID, meterDataSlice := range meterDataMap </span><span class="cov1" title="1">{
+        <span class="cov7" title="4">for meterID, meterDataSlice := range meterDataMap </span><span class="cov1" title="1">{
                 active := make([]float64, len(meterDataSlice))
                 reactiveInductive := make([]float64, len(meterDataSlice))
                 reactiveCapacitive := make([]float64, len(meterDataSlice))
@@ -213,7 +213,7 @@ func formatConsumptionData(consumptions []*domain.Consumption) *domain.Response 
         }
 
         // Get unique and sorted periods
-        <span class="cov6" title="4">response.Period = getUniqueSortedPeriods(meterDataMap)
+        <span class="cov7" title="4">response.Period = getUniqueSortedPeriods(meterDataMap)
 
         return response</span>
 }
@@ -233,12 +233,12 @@ func getUniqueSortedPeriods(meterDataMap map[int][]MeterData) []string <span cla
         <span class="cov7" title="5">sortedPeriods := make([]string, 0, len(periodsMap))
 
         // Add unique periods to the slice
-        for period := range periodsMap </span><span class="cov6" title="4">{
+        for period := range periodsMap </span><span class="cov7" title="4">{
                 sortedPeriods = append(sortedPeriods, period)
         }</span>
 
         // Sort the periods based on the custom comparison function
-        <span class="cov7" title="5">sort.Slice(sortedPeriods, func(i, j int) bool </span><span class="cov5" title="3">{
+        <span class="cov7" title="5">sort.Slice(sortedPeriods, func(i, j int) bool </span><span class="cov4" title="2">{
                 dateI := parsePeriodDate(sortedPeriods[i])
                 dateJ := parsePeriodDate(sortedPeriods[j])
                 return dateI.Before(dateJ)
@@ -248,13 +248,13 @@ func getUniqueSortedPeriods(meterDataMap map[int][]MeterData) []string <span cla
 }
 
 // parsePeriodDate parses the period string and returns the corresponding date.
-func parsePeriodDate(period string) time.Time <span class="cov10" title="10">{
+func parsePeriodDate(period string) time.Time <span class="cov10" title="8">{
         // Remove leading/trailing spaces and hyphens
         period = strings.Trim(period, " -")
 
         // Try to parse the period as "Mon DD"
         date, err := time.Parse("Jan 02", period)
-        if err == nil </span><span class="cov8" title="7">{
+        if err == nil </span><span class="cov7" title="5">{
                 return date
         }</span>
 
@@ -265,7 +265,7 @@ func parsePeriodDate(period string) time.Time <span class="cov10" title="10">{
         }</span>
 
         // Try to parse the period as "Mon DD - Mon DD"
-        <span class="cov3" title="2">date, err = time.Parse("Jan 02", strings.Split(period, " - ")[0])
+        <span class="cov4" title="2">date, err = time.Parse("Jan 02", strings.Split(period, " - ")[0])
         if err == nil </span><span class="cov1" title="1">{
                 return date
         }</span>
@@ -277,7 +277,7 @@ func parsePeriodDate(period string) time.Time <span class="cov10" title="10">{
 // getDatePeriodFormat returns the period format for the given period type.
 func getDatePeriodFormat(periodType string) (string, string) <span class="cov7" title="5">{
         switch periodType </span>{
-        case "daily":<span class="cov3" title="2">
+        case "daily":<span class="cov4" title="2">
                 return "TO_CHAR(timestamp, 'Mon DD') AS period", "TO_CHAR(timestamp, 'Mon DD')"</span>
         case "weekly":<span class="cov1" title="1">
                 // PostgreSQL doesn't have a built-in function to get the week of the year, so we create a date range for 7 days instead.
