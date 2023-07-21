@@ -20,6 +20,7 @@ jobs:
       REFRESH_TOKEN_EXPIRY_HOUR: 168
       ACCESS_TOKEN_SECRET: "access_token_secret"
       REFRESH_TOKEN_SECRET: "refresh_token_secret"
+      IS_SANDOX: false
     services:
       db-test:
         # Docker Hub image
@@ -44,17 +45,11 @@ jobs:
         with:
           go-version: "1.17"
           cache: true
-      - name: "unit_test"
-        run: make unit_test
       - name: Delete Fixtures if IS_SANDOX is false
         run: |
             if [ ${IS_SANDOX} == false ]; then
               rm -rf test/fixtures
               echo "Fixtures is deleted"
             fi
-      - name: Install goose
-        run: go install github.com/pressly/goose/v3/cmd/goose@v3.5.3
-      - name: Run migrations AND Seeds SQL
-        run: sh -c 'sleep 5 &&  goose -dir storage/sql/migrations postgres "host=localhost user=postgres dbname=deuna-guard-test port=5433 sslmode=disable" up'
-      - name: "E2E tests"
-        run: cd ./test && go test ./...
+      - name: "test"
+        run: make test
