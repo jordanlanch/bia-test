@@ -14,15 +14,17 @@ type MeterController struct {
 }
 
 func (mc *MeterController) Fetch(c *gin.Context) {
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10")) // Default limit is 10
+	limitStr := c.DefaultQuery("limit", "10")
+	limit, err := strconv.Atoi(limitStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid limit"})
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid limit parameter"})
 		return
 	}
 
-	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0")) // Default offset is 0
+	offsetStr := c.DefaultQuery("offset", "0")
+	offset, err := strconv.Atoi(offsetStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid offset"})
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid offset parameter"})
 		return
 	}
 
@@ -38,7 +40,13 @@ func (mc *MeterController) Fetch(c *gin.Context) {
 }
 
 func (mc *MeterController) Get(c *gin.Context) {
-	id, err := uuid.Parse(c.Param("id"))
+	idParam := c.Param("id")
+	if idParam == "" {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Missing id parameter"})
+		return
+	}
+
+	id, err := uuid.Parse(idParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return

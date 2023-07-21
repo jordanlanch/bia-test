@@ -3,6 +3,9 @@ DB_PORT=5432
 MIGRATION_DIR=storage/migrations
 ROUTE="host=localhost user=postgres password=password dbname=${DB_NAME} port=${DB_PORT} sslmode=disable"
 
+DB_NAME_TEST=bia-test-db-test
+DB_PORT_TEST=5433
+
 define setup_env
     $(eval ENV_FILE := .env.test_integration)
     @echo " - setup env $(ENV_FILE)"
@@ -24,22 +27,22 @@ test:
 
 unit_test:
 	echo "/////////////////////////////////Starting unit test environment/////////////////////////////////"
-	cd ./restserver && go test ./... -coverprofile coverage.out -covermode count &&  go tool cover -func coverage.out | grep total | awk '{print $3}'
-	cd ./services/anti_fraud/manager && go test ./... -coverprofile coverage.out -covermode count &&  go tool cover -func coverage.out | grep total | awk '{print $3}'
-	cd ./services/hard_internal_rules/manager && go test ./... -coverprofile coverage.out -covermode count && go tool cover -func coverage.out | grep total | awk '{print $3}'
-	cd ./restserver && go tool cover -html=coverage.out -o cover.html
-	cd ./services/anti_fraud/manager && go tool cover -html=coverage.out -o cover.html
-	cd ./services/hard_internal_rules/manager && go tool cover -html=coverage.out -o cover.html
+	cd ./repository && go test ./... -coverprofile coverage.out -covermode count &&  go tool cover -func coverage.out | grep total | awk '{print $3}'
+	cd ./usecase && go test ./... -coverprofile coverage.out -covermode count &&  go tool cover -func coverage.out | grep total | awk '{print $3}'
+	cd ./repository && go tool cover -html=coverage.out -o cover.html
+	cd ./usecase && go tool cover -html=coverage.out -o cover.html
 
 goose_install:
 	go install github.com/pressly/goose/v3/cmd/goose@v3.5.3
 
 e2e_test: goose_install
+	echo "Starting test environment"
+	$(call setup_env)
 	echo "/////////////////////////////////Deleting fixtures/////////////////////////////////"
 	rm -rf ./test/fixtures
 	echo "/////////////////////////////////Starting E2E Test/////////////////////////////////"
 	docker compose -f docker-compose-test.yaml up --build -d
-	sh -c 'sleep 5 &&  goose -dir ${MIGRATION_DIR} postgres "host=localhost user=postgres dbname=deuna-guard-test port=5470 sslmode=disable" up &&  goose -dir seeds postgres "host=localhost user=postgres dbname=deuna-guard-test port=5470 sslmode=disable" up'
+	sh -c 'sleep 5 &&  goose -dir ${MIGRATION_DIR} postgres "host=localhost user=postgres dbname=${DB_NAME_TEST} port=${DB_PORT_TEST} sslmode=disable" up'
 	cd ./test &&  go test ./...
 	docker compose -f docker-compose-test.yaml down
 	echo "/////////////////////////////////Ending E2E Test/////////////////////////////////"

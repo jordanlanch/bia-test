@@ -7,9 +7,9 @@ type Application struct {
 	Postgresql *gorm.DB
 }
 
-func App() Application {
+func App(envfile string) Application {
 	app := &Application{}
-	app.Env = NewEnv()
+	app.Env = NewEnv(envfile)
 	postgresqlDB, err := NewPostgresDatabase(app.Env)
 	if err != nil {
 		panic(err)

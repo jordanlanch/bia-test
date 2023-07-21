@@ -28,8 +28,8 @@ func (r *consumptionRepository) Save(ctx context.Context, consumption *domain.Co
 	return r.db.WithContext(ctx).Save(consumption).Error
 }
 
-// FindById busca un consumo por su ID.
-func (r *consumptionRepository) FindById(ctx context.Context, id uuid.UUID) (*domain.Consumption, error) {
+// FindByID busca un consumo por su ID.
+func (r *consumptionRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Consumption, error) {
 	var consumption domain.Consumption
 	err := r.db.WithContext(ctx).First(&consumption, "id = ?", id).Error
 	if err != nil {
@@ -50,17 +50,14 @@ func (r *consumptionRepository) FindByPeriod(ctx context.Context, periodType, st
 func (r *consumptionRepository) findWithCondition(ctx context.Context, condition string, args []interface{}, pagination *domain.Pagination, periodType string) (*domain.Response, error) {
 	var consumptions []*domain.Consumption
 
-	datePeriodFormat := getDatePeriodFormat(periodType)
-	if datePeriodFormat == "" {
-		return nil, fmt.Errorf("Invalid period type: %s", periodType)
-	}
+	datePeriodFormat, datePeriodSQL := getDatePeriodFormat(periodType)
 
 	db := applyPagination(r.db, pagination)
 	err := db.WithContext(ctx).
 		Select(fmt.Sprintf("%s, meter_id, SUM(active) as active, SUM(reactive_inductive) as reactive_inductive, SUM(reactive_capacitive) as reactive_capacitive, SUM(exported) as exported", datePeriodFormat)).
 		Where(condition, args...).
-		Group("period, meter_id").
-		Order("MIN(timestamp)").
+		Group(datePeriodSQL + ", meter_id").
+		Order(datePeriodSQL).
 		Find(&consumptions).
 		Error
 
@@ -194,17 +191,17 @@ func parsePeriodDate(period string) time.Time {
 }
 
 // getDatePeriodFormat returns the period format for the given period type.
-func getDatePeriodFormat(periodType string) string {
+func getDatePeriodFormat(periodType string) (string, string) {
 	switch periodType {
 	case "daily":
-		return "TO_CHAR(timestamp, 'Mon DD') AS period"
+		return "TO_CHAR(timestamp, 'Mon DD') AS period", "TO_CHAR(timestamp, 'Mon DD')"
 	case "weekly":
 		// PostgreSQL doesn't have a built-in function to get the week of the year, so we create a date range for 7 days instead.
-		return "TO_CHAR(DATE_TRUNC('week', timestamp), 'Mon DD') || ' - ' || TO_CHAR(DATE_TRUNC('week', timestamp) + INTERVAL '6 days', 'Mon DD') AS period"
+		return "TO_CHAR(DATE_TRUNC('week', timestamp), 'Mon DD') || ' - ' || TO_CHAR(DATE_TRUNC('week', timestamp) + INTERVAL '6 days', 'Mon DD') AS period", "TO_CHAR(DATE_TRUNC('week', timestamp), 'Mon DD') || ' - ' || TO_CHAR(DATE_TRUNC('week', timestamp) + INTERVAL '6 days', 'Mon DD')"
 	case "monthly":
-		return "TO_CHAR(timestamp, 'Mon YYYY') AS period"
+		return "TO_CHAR(timestamp, 'Mon YYYY') AS period", "TO_CHAR(timestamp, 'Mon YYYY')"
 	default:
-		return ""
+		return "", ""
 	}
 }
 

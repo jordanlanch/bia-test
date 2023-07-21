@@ -1,0 +1,16 @@
+version: '3.5'
+
+services:
+
+  db-test:
+    image: postgres
+    volumes:
+      - dbstore-test:/var/lib/postgresql/bia-test-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: bia-test-db-test
+
+volumes:
+  dbstore-test:

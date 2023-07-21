@@ -5,8 +5,8 @@ import (
 )
 
 type LoginRequest struct {
-	Email    string `form:"email" binding:"required,email"`
-	Password string `form:"password" binding:"required"`
+	Email    string `json:"email,omitempty" jsonschema:"required,minLength=1,description=Email of the user,title=Email"`
+	Password string `json:"password,omitempty" jsonschema:"required,minLength=1,description=Password of the user,title=Password"`
 }
 
 type LoginResponse struct {

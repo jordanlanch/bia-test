@@ -16,8 +16,8 @@ type ConsumptionRepository struct {
 	mock.Mock
 }
 
-// FindById provides a mock function with given fields: c, id
-func (_m *ConsumptionRepository) FindById(c context.Context, id uuid.UUID) (*domain.Consumption, error) {
+// FindByID provides a mock function with given fields: c, id
+func (_m *ConsumptionRepository) FindByID(c context.Context, id uuid.UUID) (*domain.Consumption, error) {
 	ret := _m.Called(c, id)
 
 	var r0 *domain.Consumption

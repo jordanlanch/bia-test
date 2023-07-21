@@ -1,12 +1,18 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/invopop/jsonschema"
 	"github.com/jordanlanch/bia-test/bootstrap"
 	"github.com/jordanlanch/bia-test/domain"
+	"github.com/stoewer/go-strcase"
+	"github.com/xeipuuv/gojsonschema"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,22 +22,49 @@ type SignupController struct {
 }
 
 func (sc *SignupController) Signup(c *gin.Context) {
-	var request domain.SignupRequest
+	payload := domain.SignupRequest{}
 
-	err := c.ShouldBind(&request)
+	r := new(jsonschema.Reflector)
+	r.KeyNamer = strcase.SnakeCase // from package github.com/stoewer/go-strcase
+	// r.RequiredFromJSONSchemaTags = true
+	payloadSchemaReflect := r.Reflect(domain.SignupRequest{})
+	schemaLoader := gojsonschema.NewGoLoader(&payloadSchemaReflect)
+
+	requestBody, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	documentLoader := gojsonschema.NewBytesLoader(requestBody)
+
+	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	_, err = sc.SignupUsecase.GetUserByEmail(c, request.Email)
+	if !result.Valid() {
+		err = fmt.Errorf("[ERROR] invalid payload %+v", result.Errors())
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	if err := json.Unmarshal(requestBody, &payload); err != nil {
+		err = fmt.Errorf("[ERROR] error unmarshaling JSON %+v", err)
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+
+		return
+	}
+
+	_, err = sc.SignupUsecase.GetUserByEmail(c, payload.Email)
 	if err == nil {
 		c.JSON(http.StatusConflict, domain.ErrorResponse{Message: "User already exists with the given email"})
 		return
 	}
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(request.Password),
+		[]byte(payload.Password),
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
@@ -39,12 +72,12 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		return
 	}
 
-	request.Password = string(encryptedPassword)
+	payload.Password = string(encryptedPassword)
 
 	user := &domain.User{
 		ID:       uuid.New(),
-		Email:    request.Email,
-		Password: request.Password,
+		Email:    payload.Email,
+		Password: payload.Password,
 	}
 
 	user, err = sc.SignupUsecase.Create(c, user)

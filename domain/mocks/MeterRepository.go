@@ -16,8 +16,8 @@ type MeterRepository struct {
 	mock.Mock
 }
 
-// FindById provides a mock function with given fields: ctx, id
-func (_m *MeterRepository) FindById(ctx context.Context, id uuid.UUID) (*domain.Meter, error) {
+// FindByID provides a mock function with given fields: ctx, id
+func (_m *MeterRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.Meter, error) {
 	ret := _m.Called(ctx, id)
 
 	var r0 *domain.Meter

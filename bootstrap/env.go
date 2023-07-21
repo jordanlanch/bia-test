@@ -21,9 +21,9 @@ type Env struct {
 	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
 }
 
-func NewEnv() *Env {
+func NewEnv(envfile string) *Env {
 	env := Env{}
-	viper.SetConfigFile(".env")
+	viper.SetConfigFile(envfile)
 
 	err := viper.ReadInConfig()
 	if err != nil {
