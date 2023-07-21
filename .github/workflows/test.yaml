@@ -44,8 +44,8 @@ jobs:
         with:
           go-version: "1.17"
           cache: true
-      - name: "make unit_test"
-        run: cd ./test && go test ./...
+      - name: "unit_test"
+        run: make unit_test
       - name: Delete Fixtures if IS_SANDOX is false
         run: |
             if [ ${IS_SANDOX} == false ]; then
