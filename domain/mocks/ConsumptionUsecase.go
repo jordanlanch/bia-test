@@ -14,8 +14,8 @@ type ConsumptionUsecase struct {
 	mock.Mock
 }
 
-// GetConsumptionById provides a mock function with given fields: id
-func (_m *ConsumptionUsecase) GetConsumptionById(id uuid.UUID) (*domain.Consumption, error) {
+// GetConsumptionByID provides a mock function with given fields: id
+func (_m *ConsumptionUsecase) GetConsumptionByID(id uuid.UUID) (*domain.Consumption, error) {
 	ret := _m.Called(id)
 
 	var r0 *domain.Consumption

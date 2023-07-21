@@ -1,65 +1,74 @@
-package repository_test
+package repository
 
-// import (
-// 	"context"
-// 	"errors"
-// 	"testing"
+import (
+	"context"
+	"testing"
 
-// 	"github.com/jordanlanch/bia-test/domain"
-// 	"github.com/jordanlanch/bia-test/mongo/mocks"
-// 	"github.com/jordanlanch/bia-test/repository"
-// 	"github.com/stretchr/testify/assert"
-// 	"github.com/stretchr/testify/mock"
-// 	"go.mongodb.org/mongo-driver/bson/primitive"
-// )
+	"github.com/google/uuid"
+	"github.com/jordanlanch/bia-test/domain"
+	"github.com/stretchr/testify/assert"
+)
 
-// func TestCreate(t *testing.T) {
+func TestCreate(t *testing.T) {
+	repo := NewUserRepository(db, "users")
 
-// 	var databaseHelper *mocks.Database
-// 	var collectionHelper *mocks.Collection
+	user := &domain.User{
+		ID:    uuid.New(),
+		Email: "test@test.com",
+	}
 
-// 	databaseHelper = &mocks.Database{}
-// 	collectionHelper = &mocks.Collection{}
+	createdUser, err := repo.Create(context.Background(), user)
+	assert.NoError(t, err)
+	assert.Equal(t, user.ID, createdUser.ID)
+}
 
-// 	collectionName := domain.CollectionUser
+func TestFindByID(t *testing.T) {
+	repo := NewUserRepository(db, "users")
 
-// 	mockUser := &domain.User{
-// 		ID:       primitive.NewObjectID(),
-// 		Name:     "Test",
-// 		Email:    "test@gmail.com",
-// 		Password: "password",
-// 	}
+	id := uuid.New()
+	user := &domain.User{
+		ID:    id,
+		Email: "test@test.com",
+	}
+	db.Create(user)
 
-// 	mockEmptyUser := &domain.User{}
-// 	mockUserID := primitive.NewObjectID()
+	foundUser, err := repo.FindByID(context.Background(), id)
+	assert.NoError(t, err)
+	assert.Equal(t, id, foundUser.ID)
 
-// 	t.Run("success", func(t *testing.T) {
+	_, err = repo.FindByID(context.Background(), uuid.New())
+	assert.Error(t, err)
+}
 
-// 		collectionHelper.On("InsertOne", mock.Anything, mock.AnythingOfType("*domain.User")).Return(mockUserID, nil).Once()
+func TestFindByEmail(t *testing.T) {
+	repo := NewUserRepository(db, "users")
 
-// 		databaseHelper.On("Collection", collectionName).Return(collectionHelper)
+	email := "test@test.com"
+	user := &domain.User{
+		ID:    uuid.New(),
+		Email: email,
+	}
+	db.Create(user)
 
-// 		ur := repository.NewUserRepository(databaseHelper, collectionName)
+	foundUser, err := repo.FindByEmail(context.Background(), email)
+	assert.NoError(t, err)
+	assert.Equal(t, email, foundUser.Email)
 
-// 		err := ur.Create(context.Background(), mockUser)
+	_, err = repo.FindByEmail(context.Background(), "email@email.com")
+	assert.Error(t, err)
+}
 
-// 		assert.NoError(t, err)
+func TestUpdate(t *testing.T) {
+	repo := NewUserRepository(db, "users")
 
-// 		collectionHelper.AssertExpectations(t)
-// 	})
+	user := &domain.User{
+		ID:    uuid.New(),
+		Email: "test@test.com",
+	}
+	db.Create(user)
 
-// 	t.Run("error", func(t *testing.T) {
-// 		collectionHelper.On("InsertOne", mock.Anything, mock.AnythingOfType("*domain.User")).Return(mockEmptyUser, errors.New("Unexpected")).Once()
-
-// 		databaseHelper.On("Collection", collectionName).Return(collectionHelper)
-
-// 		ur := repository.NewUserRepository(databaseHelper, collectionName)
-
-// 		err := ur.Create(context.Background(), mockEmptyUser)
-
-// 		assert.Error(t, err)
-
-// 		collectionHelper.AssertExpectations(t)
-// 	})
-
-// }
+	user.Email = "updated@test.com"
+	updatedUser, err := repo.Update(context.Background(), user)
+	assert.NoError(t, err)
+	assert.Equal(t, "updated@test.com", updatedUser.Email)
+}

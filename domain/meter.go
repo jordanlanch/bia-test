@@ -16,7 +16,7 @@ type Meter struct {
 }
 
 type MeterRepository interface {
-	FindById(ctx context.Context, id uuid.UUID) (*Meter, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*Meter, error)
 	FindMany(ctx context.Context, pagination *Pagination) ([]*Meter, error)
 }
 

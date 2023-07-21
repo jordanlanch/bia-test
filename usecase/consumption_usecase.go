@@ -20,16 +20,16 @@ func NewConsumptionUsecase(consumptionRepository domain.ConsumptionRepository, t
 	}
 }
 
-func (cu *consumptionUsecase) GetConsumptionById(id uuid.UUID) (*domain.Consumption, error) {
+func (cu *consumptionUsecase) GetConsumptionByID(id uuid.UUID) (*domain.Consumption, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), cu.contextTimeout)
 	defer cancel()
 
-	return cu.consumptionRepository.FindById(ctx, id)
+	return cu.consumptionRepository.FindByID(ctx, id)
 }
 
-func (cu *consumptionUsecase) GetConsumptionsByPeriod(period_type, start, end string, meterID []int, pagination *domain.Pagination) (*domain.Response, error) {
+func (cu *consumptionUsecase) GetConsumptionsByPeriod(periodType, start, end string, meterID []int, pagination *domain.Pagination) (*domain.Response, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), cu.contextTimeout)
 	defer cancel()
 
-	return cu.consumptionRepository.FindByPeriod(ctx, period_type, start, end, meterID, pagination)
+	return cu.consumptionRepository.FindByPeriod(ctx, periodType, start, end, meterID, pagination)
 }

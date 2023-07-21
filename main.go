@@ -3,14 +3,13 @@ package main
 import (
 	"time"
 
-	"github.com/gin-gonic/gin"
 	route "github.com/jordanlanch/bia-test/api/route"
 	"github.com/jordanlanch/bia-test/bootstrap"
 )
 
 func main() {
 
-	app := bootstrap.App()
+	app := bootstrap.App(".env")
 
 	env := app.Env
 
@@ -18,9 +17,7 @@ func main() {
 
 	timeout := time.Duration(env.ContextTimeout) * time.Second
 
-	gin := gin.Default()
+	router := route.Setup(env, timeout, app.Postgresql)
 
-	route.Setup(env, timeout, app.Postgresql, gin)
-
-	gin.Run(env.ServerAddress)
+	router.Run(env.ServerAddress)
 }

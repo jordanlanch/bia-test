@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -19,6 +20,7 @@ type Consumption struct {
 	ReactiveCapacitive float64   `json:"reactive_capacitive"`
 	Exported           float64   `json:"exported"`
 	Period             string    `json:"period"`
+	Timestamp          time.Time `json:"timestamp"`
 }
 
 type Response struct {
@@ -28,11 +30,11 @@ type Response struct {
 
 type ConsumptionRepository interface {
 	Save(ctx context.Context, consumption *Consumption) error
-	FindById(c context.Context, id uuid.UUID) (*Consumption, error)
+	FindByID(c context.Context, id uuid.UUID) (*Consumption, error)
 	FindByPeriod(c context.Context, period_type, start, end string, meterIDs []int, pagination *Pagination) (*Response, error)
 }
 
 type ConsumptionUsecase interface {
-	GetConsumptionById(id uuid.UUID) (*Consumption, error)
+	GetConsumptionByID(id uuid.UUID) (*Consumption, error)
 	GetConsumptionsByPeriod(period_type, start, end string, meterIDs []int, pagination *Pagination) (*Response, error)
 }

@@ -20,6 +20,4 @@ func NewMeterRouter(env *bootstrap.Env, timeout time.Duration, db *gorm.DB, grou
 
 	group.GET("/meters", mc.Fetch)
 	group.GET("/meters/:id", mc.Get)
-
-	// If you have more routes related to meters, they should be defined here.
 }

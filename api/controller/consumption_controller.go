@@ -15,6 +15,10 @@ type ConsumptionController struct {
 
 func (cc *ConsumptionController) GetConsumptionsByPeriod(c *gin.Context) {
 	meterIDsParam := c.Query("meters_ids")
+	if meterIDsParam == "" {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Missing meters_ids parameter"})
+		return
+	}
 
 	var meterIDs []int
 	if strings.HasPrefix(meterIDsParam, "[") && strings.HasSuffix(meterIDsParam, "]") {
@@ -44,21 +48,24 @@ func (cc *ConsumptionController) GetConsumptionsByPeriod(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Missing start_date parameter"})
 		return
 	}
+
 	endStr := c.Query("end_date")
-	if startStr == "" {
+	if endStr == "" {
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Missing end_date parameter"})
 		return
 	}
 
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10")) // Default limit is 10
+	limitStr := c.DefaultQuery("limit", "10")
+	limit, err := strconv.Atoi(limitStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid limit"})
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid limit parameter"})
 		return
 	}
 
-	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0")) // Default offset is 0
+	offsetStr := c.DefaultQuery("offset", "0")
+	offset, err := strconv.Atoi(offsetStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid offset"})
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid offset parameter"})
 		return
 	}
 

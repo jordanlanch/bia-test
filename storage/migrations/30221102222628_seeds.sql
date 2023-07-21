@@ -22175,4 +22175,5 @@ INSERT INTO consumptions (id, meter_id, active, reactive_inductive, timestamp) V
 INSERT INTO consumptions (id, meter_id, active, reactive_inductive, timestamp) VALUES ('872241ac-bf4c-4264-96ed-f03a24270f69', 1, 1, 303.83, '2022-08-24 16:57:05');
 INSERT INTO consumptions (id, meter_id, active, reactive_inductive, timestamp) VALUES ('1be63fa4-1c32-475d-90a6-e85ccd2c834e', 1, 1, 303.08, '2022-08-24 15:59:44');
 INSERT INTO consumptions (id, meter_id, active, reactive_inductive, timestamp) VALUES ('53b9e101-176c-4cb9-a3d7-020277f46d78', 1, 1, 302.32, '2022-08-24 14:52:19');
+INSERT INTO consumptions (id, meter_id, active, reactive_inductive, timestamp) VALUES ('53b9e101-176c-4cb9-a3d7-020277f45d78', 1, 1, 302.32, '2022-08-24 14:52:19');
 -- +goose Down
