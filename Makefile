@@ -4,7 +4,7 @@ MIGRATION_DIR=storage/migrations
 ROUTE="host=localhost user=postgres password=password dbname=${DB_NAME} port=${DB_PORT} sslmode=disable"
 
 DB_NAME_TEST=bia-test-db-test
-DB_PORT_TEST=5433
+DB_PORT_TEST=5469
 
 define setup_env
     $(eval ENV_FILE := .env.test_integration)
