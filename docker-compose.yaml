@@ -16,7 +16,6 @@ services:
   api:
     depends_on:
       - db
-      - aws-cli-guard
     volumes:
       - .:/go/src/github.com/jordanlanch/bia-test
     environment:
